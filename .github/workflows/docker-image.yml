@@ -25,8 +25,8 @@ jobs:
 
     - name: Tag the image
       run: |
-        docker tag pytorch/pytorch:${{ github.event.inputs.image_tag }} registry.cn-hangzhou.aliyuncs.com/fuli1001/images/pytorch:${{ github.event.inputs.image_tag }}
+        docker tag pytorch/pytorch:${{ github.event.inputs.image_tag }} registry.cn-hangzhou.aliyuncs.com/fuli1001/pytorch:${{ github.event.inputs.image_tag }}
 
     - name: Push the image
       run: |
-        docker push registry.cn-hangzhou.aliyuncs.com/fuli1001/images/pytorch:${{ github.event.inputs.image_tag }}
+        docker push registry.cn-hangzhou.aliyuncs.com/fuli1001/pytorch:${{ github.event.inputs.image_tag }}
