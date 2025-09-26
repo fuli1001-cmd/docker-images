@@ -1,12 +1,36 @@
-name: Push pytorch/pytorch:2.2.1-cuda12.1-cudnn8-runtime to Alibaba Cloud Registry
+name: Push docker images to Alibaba Cloud Registry
 
 on:
   workflow_dispatch:
     inputs:
-      image_tag:
-        description: 'Docker image tag'
+      python_tag:
+        description: 'python image tag'
+        required: true
+        default: '3.12-slim'
+      pytorch_tag:
+        description: 'pytorch image tag'
         required: true
         default: '2.2.1-cuda12.1-cudnn8-runtime'
+      node_tag:
+        description: 'node image tag'
+        required: true
+        default: 'lts-slim'
+      mongo_tag:
+        description: 'mongo image tag'
+        required: true
+        default: '4.4'
+      mongo_express_tag:
+        description: 'mongo-express image tag'
+        required: true
+        default: 'latest'
+      registry:
+        description: 'Alibaba Cloud Registry address (e.g., registry.cn-hangzhou.aliyuncs.com)'
+        required: true
+        default: 'registry.cn-hangzhou.aliyuncs.com'
+      namespace:
+        description: 'Alibaba Cloud Registry namespace (e.g., fuli1001)'
+        required: true
+        default: 'fuli1001'
 
 jobs:
   build-and-push:
@@ -15,18 +39,51 @@ jobs:
     - name: Log in to Alibaba Cloud Registry
       uses: docker/login-action@v1
       with:
-        registry: registry.cn-hangzhou.aliyuncs.com
+        registry: ${{ github.event.inputs.registry }}
         username: ${{ secrets.ALIBABA_CLOUD_USERNAME }}
         password: ${{ secrets.ALIBABA_CLOUD_PASSWORD }}
 
-    - name: Pull PyTorch image
+    - name: Pull, tag, and push python image
       run: |
-        docker pull pytorch/pytorch:${{ github.event.inputs.image_tag }}
+        SOURCE_IMAGE="python:${{ github.event.inputs.python_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/python:${{ github.event.inputs.python_tag }}"
 
-    - name: Tag the image
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+        
+    - name: Pull, tag, and push pytorch image
       run: |
-        docker tag pytorch/pytorch:${{ github.event.inputs.image_tag }} registry.cn-hangzhou.aliyuncs.com/fuli1001/pytorch:${{ github.event.inputs.image_tag }}
+        SOURCE_IMAGE="pytorch:${{ github.event.inputs.pytorch_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/pytorch:${{ github.event.inputs.pytorch_tag }}"
 
-    - name: Push the image
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push node image
       run: |
-        docker push registry.cn-hangzhou.aliyuncs.com/fuli1001/pytorch:${{ github.event.inputs.image_tag }}
+        SOURCE_IMAGE="node:${{ github.event.inputs.node_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/node:${{ github.event.inputs.node_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push mongo image
+      run: |
+        SOURCE_IMAGE="mongo:${{ github.event.inputs.mongo_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/mongo:${{ github.event.inputs.mongo_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push mongo-express image
+      run: |
+        SOURCE_IMAGE="mongo-express:${{ github.event.inputs.mongo_express_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/mongo-express:${{ github.event.inputs.mongo_express_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
