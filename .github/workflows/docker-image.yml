@@ -3,30 +3,65 @@ name: Push docker images to Alibaba Cloud Registry
 on:
   workflow_dispatch:
     inputs:
+      push_python:
+        description: 'Push python image'
+        required: false
+        type: boolean
+        default: true
       python_tag:
         description: 'python image tag'
         required: true
         default: '3.12-slim'
+      push_python_310:
+        description: 'Push python:3.10-slim-bullseye image'
+        required: false
+        type: boolean
+        default: true
       python_310-slim-bullseye:
         description: 'python:3.10-slim-bullseye'
         required: true
         default: 'python:3.10-slim-bullseye'
+      push_pytorch:
+        description: 'Push pytorch image'
+        required: false
+        type: boolean
+        default: true
       pytorch_tag:
         description: 'pytorch image tag'
         required: true
         default: '2.2.1-cuda12.1-cudnn8-runtime'
+      push_node:
+        description: 'Push node image'
+        required: false
+        type: boolean
+        default: true
       node_tag:
         description: 'node image tag'
         required: true
         default: 'lts-slim'
+      push_mongo:
+        description: 'Push mongo image'
+        required: false
+        type: boolean
+        default: true
       mongo_tag:
         description: 'mongo image tag'
         required: true
         default: '4.4'
+      push_mongo_express:
+        description: 'Push mongo-express image'
+        required: false
+        type: boolean
+        default: true
       mongo_express_tag:
         description: 'mongo-express image tag'
         required: true
         default: 'latest'
+      push_cloudflared:
+        description: 'Push cloudflared image'
+        required: false
+        type: boolean
+        default: true
       cloudflared_latest:
         description: 'cloudflared:latest'
         required: true
@@ -52,6 +87,7 @@ jobs:
         password: ${{ secrets.ALIBABA_CLOUD_PASSWORD }}
 
     - name: Pull, tag, and push python image
+      if: ${{ github.event.inputs.push_python == 'true' }}
       run: |
         SOURCE_IMAGE="python:${{ github.event.inputs.python_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/python:${{ github.event.inputs.python_tag }}"
@@ -61,6 +97,7 @@ jobs:
         docker push $TARGET_IMAGE
 
     - name: Pull, tag, and push python image
+      if: ${{ github.event.inputs.push_python_310 == 'true' }}
       run: |
         SOURCE_IMAGE="${{ github.event.inputs.python_310-slim-bullseye }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/${{ github.event.inputs.python_310-slim-bullseye }}"
@@ -68,8 +105,9 @@ jobs:
         docker pull $SOURCE_IMAGE
         docker tag $SOURCE_IMAGE $TARGET_IMAGE
         docker push $TARGET_IMAGE
-        
+
     - name: Pull, tag, and push pytorch image
+      if: ${{ github.event.inputs.push_pytorch == 'true' }}
       run: |
         SOURCE_IMAGE="pytorch:${{ github.event.inputs.pytorch_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/pytorch:${{ github.event.inputs.pytorch_tag }}"
@@ -79,6 +117,7 @@ jobs:
         docker push $TARGET_IMAGE
 
     - name: Pull, tag, and push node image
+      if: ${{ github.event.inputs.push_node == 'true' }}
       run: |
         SOURCE_IMAGE="node:${{ github.event.inputs.node_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/node:${{ github.event.inputs.node_tag }}"
@@ -88,6 +127,7 @@ jobs:
         docker push $TARGET_IMAGE
 
     - name: Pull, tag, and push mongo image
+      if: ${{ github.event.inputs.push_mongo == 'true' }}
       run: |
         SOURCE_IMAGE="mongo:${{ github.event.inputs.mongo_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/mongo:${{ github.event.inputs.mongo_tag }}"
@@ -97,6 +137,7 @@ jobs:
         docker push $TARGET_IMAGE
 
     - name: Pull, tag, and push mongo-express image
+      if: ${{ github.event.inputs.push_mongo_express == 'true' }}
       run: |
         SOURCE_IMAGE="mongo-express:${{ github.event.inputs.mongo_express_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/mongo-express:${{ github.event.inputs.mongo_express_tag }}"
@@ -105,7 +146,8 @@ jobs:
         docker tag $SOURCE_IMAGE $TARGET_IMAGE
         docker push $TARGET_IMAGE
 
-    - name: Pull, tag, and push mongo-express image
+    - name: Pull, tag, and push cloudflared image
+      if: ${{ github.event.inputs.push_cloudflared == 'true' }}
       run: |
         SOURCE_IMAGE="cloudflare/${{ github.event.inputs.cloudflared_latest }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/${{ github.event.inputs.cloudflared_latest }}"
