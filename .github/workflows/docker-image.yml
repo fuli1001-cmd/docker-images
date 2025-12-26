@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Log in to Alibaba Cloud Registry
-      uses: docker/login-action@v1
+      uses: docker/login-action@v3
       with:
         registry: ${{ github.event.inputs.registry }}
         username: ${{ secrets.ALIBABA_CLOUD_USERNAME }}
