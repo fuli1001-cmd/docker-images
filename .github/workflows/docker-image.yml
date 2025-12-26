@@ -44,6 +44,12 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
+    # IMPORTANT: Alibaba Cloud requires a registry-specific password (NOT your account password)
+    # To set this up:
+    # 1. Go to Alibaba Cloud Container Registry Console (https://cr.console.aliyun.com/)
+    # 2. Navigate to "Access Credential" and set a registry password
+    # 3. Add ALIBABA_CLOUD_USERNAME and ALIBABA_CLOUD_PASSWORD as GitHub Secrets
+    # See README.md for detailed setup instructions
     - name: Log in to Alibaba Cloud Registry
       uses: docker/login-action@v3
       with:
