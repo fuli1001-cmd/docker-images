@@ -7,7 +7,7 @@ on:
         description: 'python image tag'
         required: true
         default: '3.12-slim'
-      python_3.10-slim-bullseye:
+      python_310-slim-bullseye:
         description: 'python:3.10-slim-bullseye'
         required: true
         default: 'python:3.10-slim-bullseye'
@@ -62,8 +62,8 @@ jobs:
 
     - name: Pull, tag, and push python image
       run: |
-        SOURCE_IMAGE="${{ github.event.inputs.python_3.10-slim-bullseye }}"
-        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/${{ github.event.inputs.python_3.10-slim-bullseye }}"
+        SOURCE_IMAGE="${{ github.event.inputs.python_310-slim-bullseye }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/${{ github.event.inputs.python_310-slim-bullseye }}"
 
         docker pull $SOURCE_IMAGE
         docker tag $SOURCE_IMAGE $TARGET_IMAGE
