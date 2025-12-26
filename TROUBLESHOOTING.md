@@ -106,7 +106,7 @@ If you've tried all the above and still encounter errors:
 ### Common Error Messages and Meanings
 
 | Error Message | Meaning | Solution |
-|--------------|---------|----------|
+|---------------|---------|----------|
 | `unauthorized: authentication required` | Credentials are invalid or missing | Reset registry password, update GitHub Secrets |
 | `denied: requested access to the resource is denied` | No permission to push to namespace | Check namespace permissions |
 | `name unknown` | Repository/namespace doesn't exist | Create namespace in Alibaba Console |
