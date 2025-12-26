@@ -111,7 +111,7 @@ jobs:
         docker tag $SOURCE_IMAGE $TARGET_IMAGE
         docker push $TARGET_IMAGE
 
-    - name: Pull, tag, and push mongo-express image
+    - name: Pull, tag, and push cloudflared image
       run: |
         SOURCE_IMAGE="cloudflare/${{ github.event.inputs.cloudflared_latest }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/${{ github.event.inputs.cloudflared_latest }}"
