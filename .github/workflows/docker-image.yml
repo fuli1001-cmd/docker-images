@@ -66,6 +66,15 @@ on:
         description: 'cloudflared:latest'
         required: true
         default: 'cloudflared:latest'
+      push_postgres:
+        description: 'Push postgres image'
+        required: false
+        type: boolean
+        default: true
+      postgres_tag:
+        description: 'postgres image tag'
+        required: true
+        default: '15-alpine'
       registry:
         description: 'Alibaba Cloud Registry address (e.g., registry.cn-hangzhou.aliyuncs.com)'
         required: true
@@ -151,6 +160,16 @@ jobs:
       run: |
         SOURCE_IMAGE="cloudflare/${{ github.event.inputs.cloudflared_latest }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/${{ github.event.inputs.cloudflared_latest }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push postgres image
+      if: ${{ github.event.inputs.push_postgres == 'true' }}
+      run: |
+        SOURCE_IMAGE="postgres:${{ github.event.inputs.postgres_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/postgres:${{ github.event.inputs.postgres_tag }}"
 
         docker pull $SOURCE_IMAGE
         docker tag $SOURCE_IMAGE $TARGET_IMAGE
