@@ -1,0 +1,100 @@
+name: Push cinema docker images to Alibaba Cloud Registry
+
+on:
+  workflow_dispatch:
+    inputs:
+      push_radarr:
+        description: 'Push radarr image'
+        required: false
+        type: boolean
+        default: true
+      radarr_tag:
+        description: 'radarr image tag'
+        required: true
+        default: 'latest'
+      push_prowlarr:
+        description: 'Push prowlarr image'
+        required: false
+        type: boolean
+        default: true
+      prowlarr_tag:
+        description: 'prowlarr image tag'
+        required: true
+        default: 'latest'
+      push_bazarr:
+        description: 'Push bazarr image'
+        required: false
+        type: boolean
+        default: true
+      bazarr_tag:
+        description: 'bazarr image tag'
+        required: true
+        default: 'latest'
+      push_qbittorrent:
+        description: 'Push qbittorrent image'
+        required: false
+        type: boolean
+        default: true
+      qbittorrent_tag:
+        description: 'qbittorrent image tag'
+        required: true
+        default: 'latest'
+      registry:
+        description: 'Alibaba Cloud Registry address (e.g., registry.cn-hangzhou.aliyuncs.com)'
+        required: true
+        default: 'registry.cn-hangzhou.aliyuncs.com'
+      namespace:
+        description: 'Alibaba Cloud Registry namespace (e.g., fuli1001)'
+        required: true
+        default: 'fuli1001'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Log in to Alibaba Cloud Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ github.event.inputs.registry }}
+        username: ${{ secrets.ALIBABA_CLOUD_USERNAME }}
+        password: ${{ secrets.ALIBABA_CLOUD_PASSWORD }}
+
+    - name: Pull, tag, and push radarr image
+      if: ${{ github.event.inputs.push_radarr == 'true' }}
+      run: |
+        SOURCE_IMAGE="ghcr.io/linuxserver/radarr:${{ github.event.inputs.radarr_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/radarr:${{ github.event.inputs.radarr_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push prowlarr image
+      if: ${{ github.event.inputs.push_prowlarr == 'true' }}
+      run: |
+        SOURCE_IMAGE="ghcr.io/linuxserver/prowlarr:${{ github.event.inputs.prowlarr_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/prowlarr:${{ github.event.inputs.prowlarr_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push bazarr image
+      if: ${{ github.event.inputs.push_bazarr == 'true' }}
+      run: |
+        SOURCE_IMAGE="ghcr.io/linuxserver/bazarr:${{ github.event.inputs.bazarr_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/bazarr:${{ github.event.inputs.bazarr_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push qbittorrent image
+      if: ${{ github.event.inputs.push_qbittorrent == 'true' }}
+      run: |
+        SOURCE_IMAGE="ghcr.io/linuxserver/qbittorrent:${{ github.event.inputs.qbittorrent_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/qbittorrent:${{ github.event.inputs.qbittorrent_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
