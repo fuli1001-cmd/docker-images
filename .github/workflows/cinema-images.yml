@@ -39,6 +39,33 @@ on:
         description: 'qbittorrent image tag'
         required: true
         default: 'latest'
+      push_jackett:
+        description: 'Push jackett image'
+        required: false
+        type: boolean
+        default: true
+      jackett_tag:
+        description: 'jackett image tag'
+        required: true
+        default: 'latest'
+      push_flaresolverr:
+        description: 'Push flaresolverr image'
+        required: false
+        type: boolean
+        default: false
+      flaresolverr_tag:
+        description: 'flaresolverr image tag'
+        required: true
+        default: 'latest'
+      push_sonarr:
+        description: 'Push sonarr image'
+        required: false
+        type: boolean
+        default: false
+      sonarr_tag:
+        description: 'sonarr image tag'
+        required: true
+        default: 'latest'
       registry:
         description: 'Alibaba Cloud Registry address (e.g., registry.cn-hangzhou.aliyuncs.com)'
         required: true
@@ -94,6 +121,36 @@ jobs:
       run: |
         SOURCE_IMAGE="ghcr.io/linuxserver/qbittorrent:${{ github.event.inputs.qbittorrent_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/qbittorrent:${{ github.event.inputs.qbittorrent_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push jackett image
+      if: ${{ github.event.inputs.push_jackett == 'true' }}
+      run: |
+        SOURCE_IMAGE="ghcr.io/linuxserver/jackett:${{ github.event.inputs.jackett_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/jackett:${{ github.event.inputs.jackett_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push flaresolverr image
+      if: ${{ github.event.inputs.push_flaresolverr == 'true' }}
+      run: |
+        SOURCE_IMAGE="ghcr.io/linuxserver/flaresolverr:${{ github.event.inputs.flaresolverr_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/flaresolverr:${{ github.event.inputs.flaresolverr_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push sonarr image
+      if: ${{ github.event.inputs.push_sonarr == 'true' }}
+      run: |
+        SOURCE_IMAGE="ghcr.io/linuxserver/sonarr:${{ github.event.inputs.sonarr_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/sonarr:${{ github.event.inputs.sonarr_tag }}"
 
         docker pull $SOURCE_IMAGE
         docker tag $SOURCE_IMAGE $TARGET_IMAGE
