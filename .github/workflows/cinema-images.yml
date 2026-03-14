@@ -139,7 +139,7 @@ jobs:
     - name: Pull, tag, and push flaresolverr image
       if: ${{ github.event.inputs.push_flaresolverr == 'true' }}
       run: |
-        SOURCE_IMAGE="ghcr.io/linuxserver/flaresolverr:${{ github.event.inputs.flaresolverr_tag }}"
+        SOURCE_IMAGE="flaresolverr/flaresolverr:latest:${{ github.event.inputs.flaresolverr_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/flaresolverr:${{ github.event.inputs.flaresolverr_tag }}"
 
         docker pull $SOURCE_IMAGE
