@@ -75,6 +75,15 @@ on:
         description: 'postgres image tag'
         required: true
         default: '15-alpine'
+      push_new-api:
+        description: 'Push new-api image'
+        required: false
+        type: boolean
+        default: true
+      new-api_tag:
+        description: 'new-api image tag'
+        required: true
+        default: 'latest'
       registry:
         description: 'Alibaba Cloud Registry address (e.g., registry.cn-hangzhou.aliyuncs.com)'
         required: true
@@ -170,6 +179,16 @@ jobs:
       run: |
         SOURCE_IMAGE="postgres:${{ github.event.inputs.postgres_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/postgres:${{ github.event.inputs.postgres_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push new-api image
+      if: ${{ github.event.inputs.push_new-api == 'true' }}
+      run: |
+        SOURCE_IMAGE="calciumion/new-api:${{ github.event.inputs.new-api_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/new-api:${{ github.event.inputs.new-api_tag }}"
 
         docker pull $SOURCE_IMAGE
         docker tag $SOURCE_IMAGE $TARGET_IMAGE
