@@ -93,6 +93,15 @@ on:
         description: 'minio image tag'
         required: true
         default: 'latest'
+      push_minio_mc:
+        description: 'Push minio mc image'
+        required: false
+        type: boolean
+        default: true
+      minio_mc_tag:
+        description: 'minio mc image tag'
+        required: true
+        default: 'latest'
       registry:
         description: 'Alibaba Cloud Registry address (e.g., registry.cn-hangzhou.aliyuncs.com)'
         required: true
@@ -208,6 +217,16 @@ jobs:
       run: |
         SOURCE_IMAGE="quay.io/minio/minio:${{ github.event.inputs.minio_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/minio:${{ github.event.inputs.minio_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+
+    - name: Pull, tag, and push minio mc image
+      if: ${{ github.event.inputs.push_minio_mc == 'true' }}
+      run: |
+        SOURCE_IMAGE="minio/mc:${{ github.event.inputs.minio_mc_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/mc:${{ github.event.inputs.minio_mc_tag }}"
 
         docker pull $SOURCE_IMAGE
         docker tag $SOURCE_IMAGE $TARGET_IMAGE
