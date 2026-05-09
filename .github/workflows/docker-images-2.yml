@@ -1,0 +1,43 @@
+name: Push docker images to Alibaba Cloud Registry
+
+on:
+  workflow_dispatch:
+    inputs:
+      push_sub2api:
+        description: 'Push sub2api image'
+        required: false
+        type: boolean
+        default: true
+      sub2api_tag:
+        description: 'sub2api image tag'
+        required: true
+        default: 'latest'
+      registry:
+        description: 'Alibaba Cloud Registry address (e.g., registry.cn-hangzhou.aliyuncs.com)'
+        required: true
+        default: 'registry.cn-hangzhou.aliyuncs.com'
+      namespace:
+        description: 'Alibaba Cloud Registry namespace (e.g., fuli1001)'
+        required: true
+        default: 'fuli1001'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Log in to Alibaba Cloud Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ github.event.inputs.registry }}
+        username: ${{ secrets.ALIBABA_CLOUD_USERNAME }}
+        password: ${{ secrets.ALIBABA_CLOUD_PASSWORD }}
+
+    - name: Pull, tag, and push sub2api image
+      if: ${{ github.event.inputs.push_sub2api == 'true' }}
+      run: |
+        SOURCE_IMAGE="weishaw/sub2api:${{ github.event.inputs.sub2api_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/sub2api:${{ github.event.inputs.sub2api_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
