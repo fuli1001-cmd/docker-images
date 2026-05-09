@@ -102,6 +102,15 @@ on:
         description: 'minio mc image tag'
         required: true
         default: 'latest'
+      push_sub2api:
+        description: 'Push sub2api image'
+        required: false
+        type: boolean
+        default: true
+      sub2api_tag:
+        description: 'sub2api image tag'
+        required: true
+        default: 'latest'
       registry:
         description: 'Alibaba Cloud Registry address (e.g., registry.cn-hangzhou.aliyuncs.com)'
         required: true
@@ -227,6 +236,15 @@ jobs:
       run: |
         SOURCE_IMAGE="minio/mc:${{ github.event.inputs.minio_mc_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/mc:${{ github.event.inputs.minio_mc_tag }}"
+
+        docker pull $SOURCE_IMAGE
+        docker tag $SOURCE_IMAGE $TARGET_IMAGE
+        docker push $TARGET_IMAGE
+    - name: Pull, tag, and push sub2api image
+      if: ${{ github.event.inputs.push_sub2api == 'true' }}
+      run: |
+        SOURCE_IMAGE="weishaw/sub2api:${{ github.event.inputs.sub2api_tag }}"
+        TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/sub2api:${{ github.event.inputs.sub2api_tag }}"
 
         docker pull $SOURCE_IMAGE
         docker tag $SOURCE_IMAGE $TARGET_IMAGE
