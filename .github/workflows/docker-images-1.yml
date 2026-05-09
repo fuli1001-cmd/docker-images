@@ -1,4 +1,4 @@
-name: Push docker images to Alibaba Cloud Registry
+name: docker images 1
 
 on:
   workflow_dispatch:
