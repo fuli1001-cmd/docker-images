@@ -32,12 +32,53 @@ jobs:
         username: ${{ secrets.ALIBABA_CLOUD_USERNAME }}
         password: ${{ secrets.ALIBABA_CLOUD_PASSWORD }}
 
-    - name: Pull, tag, and push sub2api image
+    - name: Check, pull, tag, and push sub2api image
       if: ${{ github.event.inputs.push_sub2api == 'true' }}
       run: |
+        set -euo pipefail
+
         SOURCE_IMAGE="weishaw/sub2api:${{ github.event.inputs.sub2api_tag }}"
         TARGET_IMAGE="${{ github.event.inputs.registry }}/${{ github.event.inputs.namespace }}/sub2api:${{ github.event.inputs.sub2api_tag }}"
 
-        docker pull $SOURCE_IMAGE
-        docker tag $SOURCE_IMAGE $TARGET_IMAGE
-        docker push $TARGET_IMAGE
+        echo "=== Sub2api sync check started ==="
+        echo "Source image: ${SOURCE_IMAGE}"
+        echo "Target image: ${TARGET_IMAGE}"
+        echo "Pulling source image..."
+        docker pull "$SOURCE_IMAGE"
+
+        SOURCE_REPO_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$SOURCE_IMAGE")
+        SOURCE_DIGEST="${SOURCE_REPO_DIGEST#*@}"
+
+        echo "Source RepoDigest: ${SOURCE_REPO_DIGEST}"
+        echo "Source Digest: ${SOURCE_DIGEST}"
+        echo "Checking whether target image already exists..."
+
+        if docker pull "$TARGET_IMAGE"; then
+          TARGET_REPO_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$TARGET_IMAGE")
+          TARGET_DIGEST="${TARGET_REPO_DIGEST#*@}"
+
+          echo "Target RepoDigest: ${TARGET_REPO_DIGEST}"
+          echo "Target Digest: ${TARGET_DIGEST}"
+
+          if [ "$SOURCE_DIGEST" = "$TARGET_DIGEST" ]; then
+            echo "Result: image is unchanged."
+            echo "Action: skip docker push because target is already up to date."
+            exit 0
+          else
+            echo "Result: image has been updated."
+            echo "Action: will push the new image to Alibaba Cloud Registry."
+          fi
+        else
+          echo "Target image does not exist yet, or cannot be pulled."
+          echo "Action: will push source image as a new target image."
+        fi
+
+        echo "Tagging source image to target image..."
+        docker tag "$SOURCE_IMAGE" "$TARGET_IMAGE"
+
+        echo "Pushing target image..."
+        docker push "$TARGET_IMAGE"
+
+        echo "=== Push completed successfully ==="
+        echo "Pushed image: ${TARGET_IMAGE}"
+        echo "Pushed digest: ${SOURCE_DIGEST}"
